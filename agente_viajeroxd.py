@@ -3,6 +3,8 @@ from tkinter import messagebox
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
+from itertools import permutations
+
 
 """
 
@@ -19,7 +21,7 @@ def generar_matriz(n):
     matriz = [[0] * n for _ in range(n)]
     for i in range(n):
         for j in range(i + 1, n):
-            matriz[i][j] = random.randint(1, 100)
+            matriz[i][j] = random.randint(1, 10)
             matriz[j][i] = matriz[i][j]
     return matriz
 
@@ -69,13 +71,33 @@ def dibujar_grafo(G):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=etiquetas_aristas)
     plt.show()
 
+def total_distance(ruta, distancias):
+    distancia = 0
+    for i in range(len(ruta) - 1):
+        distancia += distancias[ruta[i]][ruta[i+1]]
+    distancia += distancias[ruta[-1]][ruta[0]]  # Regresa a la ciudad inicial
+    return distancia
 
-def fuerza_bruta(n, origen):
+def fuerza_bruta(n):
     distancias = get_distancias_matriz(n)
     lbl_result.config(text="Calculando...")
     # anaiadir marca inicial de tiempo
     root.update_idletasks()
+    # creamos todas las permutaciones
+    ciudades = list(range(len(distancias)))
+    permutaciones = permutations(ciudades)
+    # encontramos la permutacion con menor distancia (posible duplicidad)
+    mejor_ruta = None
+    min_distancia = float('inf')
 
+    for ruta in permutaciones:
+        distancia = total_distance(ruta, distancias)
+        if distancia < min_distancia:
+            min_distancia = distancia
+            mejor_ruta = ruta
+
+    print("Mejor ruta:", mejor_ruta)
+    print("Longitud de la mejor ruta:", min_distancia)
 
 def vecino_mas_cercano(n, origen):
     distancias = get_distancias_matriz(n)
@@ -113,8 +135,9 @@ def resolver_tsp():
     origen = 0 # seleccionar origen: primera ciudad por defecto
     # validar la simetria de la matriz
 
-    a = False
-    if (a):
+    controlador_de_metodo = False
+
+    if (controlador_de_metodo):
         fuerza_bruta(n, origen)
     else:
         vecino_mas_cercano(n, origen)
