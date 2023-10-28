@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import random
+
 import networkx as nx
 import matplotlib.pyplot as plt
 from itertools import permutations
@@ -72,32 +73,35 @@ def dibujar_grafo(G):
     plt.show()
 
 def total_distance(ruta, distancias):
-    distancia = 0
+    distancia_acumulada = 0
     for i in range(len(ruta) - 1):
-        distancia += distancias[ruta[i]][ruta[i+1]]
-    distancia += distancias[ruta[-1]][ruta[0]]  # Regresa a la ciudad inicial
-    return distancia
+        distancia_acumulada += distancias[ruta[i]][ruta[i+1]]
+    distancia_acumulada += distancias[ruta[-1]][ruta[0]]  # Regresa a la ciudad inicial
+    return distancia_acumulada
 
+
+# recomendacion de explicacion o documentacion usando breakpoints y debugger
 def fuerza_bruta(n):
-    distancias = get_distancias_matriz(n)
+    matriz_de_distancias = get_distancias_matriz(n)
     lbl_result.config(text="Calculando...")
     # anaiadir marca inicial de tiempo
     root.update_idletasks()
     # creamos todas las permutaciones
-    ciudades = list(range(len(distancias)))
+    ciudades = range(len(matriz_de_distancias))
     permutaciones = permutations(ciudades)
     # encontramos la permutacion con menor distancia (posible duplicidad)
     mejor_ruta = None
     min_distancia = float('inf')
 
     for ruta in permutaciones:
-        distancia = total_distance(ruta, distancias)
+        distancia = total_distance(ruta, matriz_de_distancias)
         if distancia < min_distancia:
             min_distancia = distancia
             mejor_ruta = ruta
 
     print("Mejor ruta:", mejor_ruta)
     print("Longitud de la mejor ruta:", min_distancia)
+
 
 def vecino_mas_cercano(n, origen):
     distancias = get_distancias_matriz(n)
@@ -116,7 +120,6 @@ def vecino_mas_cercano(n, origen):
         camino.append(ciudad_mas_cercana)
         visitadas[ciudad_mas_cercana] = True
 
-    camino.append(origen)
 
     distancia_total = calcular_distancia_total(camino, distancias)
 
@@ -135,10 +138,10 @@ def resolver_tsp():
     origen = 0 # seleccionar origen: primera ciudad por defecto
     # validar la simetria de la matriz
 
-    controlador_de_metodo = False
+    algoritmo_completo = True
 
-    if (controlador_de_metodo):
-        fuerza_bruta(n, origen)
+    if (algoritmo_completo):
+        fuerza_bruta(n)
     else:
         vecino_mas_cercano(n, origen)
 
