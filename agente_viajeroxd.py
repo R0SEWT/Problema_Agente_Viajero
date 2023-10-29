@@ -9,14 +9,9 @@ from itertools import permutations
 
 """
 
-Utilidades
-- Colores tk    https://www.plus2net.com/python/tkinter-colors.php
-- Paletas       https://mybrandnewlogo.com/es/generador-de-paleta-de-colores
-- Cursores tk   https://www.tutorialspoint.com/python/tk_cursors.htm
-- Fonts         https://docs.python.org/es/3.9/library/tkinter.font.html
+Parte mastemastica, documentar principalmente esta ps 
 
 """
-
 
 def generar_matriz(n):
     matriz = [[0] * n for _ in range(n)]
@@ -25,13 +20,6 @@ def generar_matriz(n):
             matriz[i][j] = random.randint(1, 10)
             matriz[j][i] = matriz[i][j]
     return matriz
-
-
-def calcular_distancia_total(camino, distancias):
-    distancia_total = 0
-    for i in range(len(camino) - 1):
-        distancia_total += distancias[camino[i]][camino[i + 1]]
-    return distancia_total
 
 
 def get_distancias_matriz(n):
@@ -43,6 +31,21 @@ def get_distancias_matriz(n):
             fila.append(int(valor))
         distancias.append(fila)
     return distancias
+
+
+def calcular_distancia_total(camino, distancias):
+    distancia_total = 0
+    for i in range(len(camino) - 1):
+        distancia_total += distancias[camino[i]][camino[i + 1]]
+    return distancia_total
+
+
+def total_distance(ruta, distancias):
+    distancia_acumulada = 0
+    for i in range(len(ruta) - 1):
+        distancia_acumulada += distancias[ruta[i]][ruta[i + 1]]
+    distancia_acumulada += distancias[ruta[-1]][ruta[0]]  # Regresa a la ciudad inicial
+    return distancia_acumulada
 
 
 def encontrar_ciudad_mas_cercana(n, ciudad_actual, visitadas, distancias):
@@ -57,6 +60,83 @@ def encontrar_ciudad_mas_cercana(n, ciudad_actual, visitadas, distancias):
     return ciudad_mas_cercana, distancia_minima
 
 
+# recomendacion de explicacion o documentacion usando breakpoints y debugger
+def fuerza_bruta(matriz_de_distancias):
+    # creamos todas las permutaciones
+    ciudades = range(len(matriz_de_distancias))
+    permutaciones = permutations(ciudades)
+    # encontramos la permutacion con menor distancia (posible duplicidad)
+    mejor_ruta = None
+    min_distancia = float('inf')
+
+    for ruta in permutaciones:
+        distancia = total_distance(ruta, matriz_de_distancias)
+        if distancia < min_distancia:
+            min_distancia = distancia
+            mejor_ruta = ruta
+    return ruta, min_distancia
+
+
+def vecino_mas_cercano(distancias):
+    origen = 0
+    n = len(distancias)
+
+    visitadas = [False] * n
+    camino = [origen]
+    visitadas[origen] = True
+
+    for _ in range(n - 1):
+        ciudad_actual = camino[-1]
+        ciudad_mas_cercana, distancia_minima = encontrar_ciudad_mas_cercana(n, ciudad_actual, visitadas, distancias)
+        camino.append(ciudad_mas_cercana)
+        visitadas[ciudad_mas_cercana] = True
+
+    distancia_total = calcular_distancia_total(camino, distancias)
+
+    return camino, distancia_total
+
+
+def resolver_tsp():
+    n = int(entry_n.get())
+    if n < 5 or n > 15:
+        messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
+        return
+
+    # validar la simetria de la matriz
+    #
+    #
+    #
+
+
+    lbl_result.config(text="Calculando...")
+    root.update_idletasks()
+    matriz_de_distancias = get_distancias_matriz(n)
+
+    algoritmo_completo = True
+
+    # anadir marca inicial de tiempo
+    #
+    #
+    #
+
+    if algoritmo_completo:
+        camino, distancia_minima = fuerza_bruta(matriz_de_distancias)
+    else:
+        camino, distancia_minima = vecino_mas_cercano(matriz_de_distancias)
+
+    lbl_result.config(text=f"Ciclo hamiltoniano:\n {camino}\nDistancia total: \n{distancia_minima}", bg=paleta[0])
+
+    G = crear_grafo(matriz_de_distancias, n)
+    dibujar_grafo(G)
+
+
+"""
+
+Networkx y matplotlib
+- Representacion del grafo con nodos y aristas
+- Almacenamiento e impresion como PNG
+
+"""
 def crear_grafo(distancias, n):
     G = nx.Graph()
     for i in range(n):
@@ -72,80 +152,19 @@ def dibujar_grafo(G):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=etiquetas_aristas)
     plt.show()
 
-def total_distance(ruta, distancias):
-    distancia_acumulada = 0
-    for i in range(len(ruta) - 1):
-        distancia_acumulada += distancias[ruta[i]][ruta[i+1]]
-    distancia_acumulada += distancias[ruta[-1]][ruta[0]]  # Regresa a la ciudad inicial
-    return distancia_acumulada
+
+"""
+
+Tkinter / Front
+
+Utilidades 
+- Colores tk    https://www.plus2net.com/python/tkinter-colors.php
+- Paletas       https://mybrandnewlogo.com/es/generador-de-paleta-de-colores
+- Cursores tk   https://www.tutorialspoint.com/python/tk_cursors.htm
+- Fonts         https://docs.python.org/es/3.9/library/tkinter.font.html
 
 
-# recomendacion de explicacion o documentacion usando breakpoints y debugger
-def fuerza_bruta(n):
-    matriz_de_distancias = get_distancias_matriz(n)
-    lbl_result.config(text="Calculando...")
-    # anaiadir marca inicial de tiempo
-    root.update_idletasks()
-    # creamos todas las permutaciones
-    ciudades = range(len(matriz_de_distancias))
-    permutaciones = permutations(ciudades)
-    # encontramos la permutacion con menor distancia (posible duplicidad)
-    mejor_ruta = None
-    min_distancia = float('inf')
-
-    for ruta in permutaciones:
-        distancia = total_distance(ruta, matriz_de_distancias)
-        if distancia < min_distancia:
-            min_distancia = distancia
-            mejor_ruta = ruta
-
-    print("Mejor ruta:", mejor_ruta)
-    print("Longitud de la mejor ruta:", min_distancia)
-
-
-def vecino_mas_cercano(n, origen):
-    distancias = get_distancias_matriz(n)
-
-    lbl_result.config(text="Calculando...")
-    # anaiadir marca inicial de tiempo
-    root.update_idletasks()
-
-    visitadas = [False] * n
-    camino = [origen]
-    visitadas[origen] = True
-
-    for _ in range(n - 1):
-        ciudad_actual = camino[-1]
-        ciudad_mas_cercana, distancia_minima = encontrar_ciudad_mas_cercana(n, ciudad_actual, visitadas, distancias)
-        camino.append(ciudad_mas_cercana)
-        visitadas[ciudad_mas_cercana] = True
-
-
-    distancia_total = calcular_distancia_total(camino, distancias)
-
-    lbl_result.config(text=f"Ciclo hamiltoniano:\n {camino}\nDistancia total: \n{distancia_total}", bg=paleta[0])
-
-    G = crear_grafo(distancias, n)
-    dibujar_grafo(G)
-
-
-def resolver_tsp():
-    n = int(entry_n.get())
-    if n < 5 or n > 15:
-        messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
-        return
-
-    origen = 0 # seleccionar origen: primera ciudad por defecto
-    # validar la simetria de la matriz
-
-    algoritmo_completo = True
-
-    if (algoritmo_completo):
-        fuerza_bruta(n)
-    else:
-        vecino_mas_cercano(n, origen)
-
-
+"""
 def generar_matriz_y_mostrar():
     limpiar_matriz()
     n = int(entry_n.get())
@@ -257,8 +276,9 @@ if __name__ == '__main__':
     bnt_solve = crear_boton(root, "Resolver PAV", paleta[-1], paleta[2], "BOLD", "target", x_button,
                             y_button + dy_button * 2, resolver_tsp)
     lbl_result = crear_etiqueta(root, "", x_button, y_button + dy_button * 5, "NORMAL")
+
     btn_close = crear_boton(root, "Cerrar Programa", paleta[-1], paleta[1], "BOLD", "target", x_button,
-                            y_button + dy_button * 3, lambda: cerrar_programa())
+                            y_button + dy_button * 3,  cerrar_programa)
 
     # Iniciar la ventana principal
     iniciar_ventana(root)
