@@ -82,7 +82,10 @@ def fuerza_bruta(matriz_de_distancias):
         if distancia < min_distancia:
             min_distancia = distancia
             mejor_ruta = ruta
-    return mejor_ruta, min_distancia
+
+    ruta_ciclica = mejor_ruta + (mejor_ruta[0],) # artificio para anadir un elemento a la tupla
+
+    return ruta_ciclica, min_distancia
 
 
 def vecino_mas_cercano(distancias):
@@ -100,6 +103,7 @@ def vecino_mas_cercano(distancias):
         visitadas[ciudad_mas_cercana] = True
 
     distancia_total = calcular_distancia_total(camino, distancias)
+    camino.append(camino[0])
 
     return camino, distancia_total
 
@@ -114,7 +118,7 @@ def resolver_tsp():
     root.update_idletasks()
     matriz_de_distancias = get_distancias_matriz(n)
 
-    algoritmo_completo = True
+    algoritmo_completo = False
     t_start = time.time()
 
     if algoritmo_completo:
@@ -126,9 +130,8 @@ def resolver_tsp():
 
     lbl_result.config(text=f"Ciclo hamiltoniano:\n {camino}\nDistancia total: \n{distancia_minima} \nTiempo de "
                            f"ejecucion: \n{round_t_eject}s", bg=paleta[0])
+    dibujar_TSP(matriz_de_distancias, n, camino)
 
-    G = crear_grafo(matriz_de_distancias, n)
-    dibujar_grafo(G)
 
 
 """
@@ -148,13 +151,23 @@ def crear_grafo(distancias, n):
     return G
 
 
-def dibujar_grafo(G):
-    pos = nx.spring_layout(G)  # Configura la posición de los nodos
+def dibujar_grafo(G, pos):
+    # Configura la posición de los nodos
     nx.draw(G, pos, with_labels=True, node_size=500, font_size=10, font_color="black")
     etiquetas_aristas = nx.get_edge_attributes(G, "weight")
     nx.draw_networkx_edge_labels(G, pos, edge_labels=etiquetas_aristas)
-    plt.show()
 
+
+def dibujar_recorrido(G, pos, recorrido):
+    nx.draw_networkx_edges(G, pos, edgelist=[(recorrido[i], recorrido[i + 1]) for i in range(len(recorrido) - 1)],
+                           edge_color='r', width=2)
+
+def dibujar_TSP(matriz_de_distancias, n, camino):
+    G = crear_grafo(matriz_de_distancias, n)
+    pos = nx.spring_layout(G)
+    dibujar_grafo(G, pos)
+    dibujar_recorrido(G, pos, camino)
+    plt.show()
 
 """
 
