@@ -5,6 +5,8 @@ import networkx as nx  # armas el grafo
 import matplotlib.pyplot as plt  # muestras
 from itertools import permutations  # para el FB
 
+import consultasAPI
+
 """
 
 Parte mastemastica, documentar principalmente esta ps 
@@ -116,7 +118,16 @@ def resolver_tsp():
 
     lbl_result.config(text="Calculando...")
     root.update_idletasks()
-    matriz_de_distancias = get_distancias_matriz(n)
+
+    modo_consultas_API = False
+
+    if modo_consultas_API:
+        ciudades_peruanas = ['Trujillo', 'Cajamarca', 'Chiclayo', 'Huamachuco']
+        n = len(ciudades_peruanas)
+        matriz_de_distancias = consultasAPI.get_matriz_from_google_maps(ciudades_peruanas, n)
+    else:
+        matriz_de_distancias = get_distancias_matriz(n)
+
 
     algoritmo_completo = False
     t_start = time.time()
@@ -153,7 +164,8 @@ def crear_grafo(distancias, n):
 
 def dibujar_grafo(G, pos):
     # Configura la posición de los nodos
-    nx.draw(G, pos, with_labels=True, node_size=500, font_size=10, font_color="black")
+    nx.draw(G, pos, with_labels=True, node_size=300, node_color='lightblue', font_size=10, font_color="black",
+            edge_color='gray', alpha=0.7)
     etiquetas_aristas = nx.get_edge_attributes(G, "weight")
     nx.draw_networkx_edge_labels(G, pos, edge_labels=etiquetas_aristas)
 
