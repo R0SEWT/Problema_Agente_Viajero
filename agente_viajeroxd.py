@@ -1,7 +1,6 @@
 import tkinter as tk  # front
 import random  # matriz aleatoria
-import tkinter.messagebox
-
+import time
 import networkx as nx  # armas el grafo
 import matplotlib.pyplot as plt  # muestras
 from itertools import permutations  # para el FB
@@ -33,7 +32,7 @@ def arreglar_matriz(n):
                 error = True
 
     if error:
-        tkinter.messagebox.showerror("Advertencia", "Se han modificado los valores de la matriz de adyacencia")
+        tk.messagebox.showerror("Advertencia", "Se han modificado los valores de la matriz de adyacencia")
 
 
 def get_distancias_matriz(n):
@@ -108,7 +107,7 @@ def vecino_mas_cercano(distancias):
 def resolver_tsp():
     n = int(entry_n.get())
     if n < 5 or n > 15:
-        tkinter.messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
+        tk.messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
         return
 
     lbl_result.config(text="Calculando...")
@@ -116,18 +115,17 @@ def resolver_tsp():
     matriz_de_distancias = get_distancias_matriz(n)
 
     algoritmo_completo = True
-
-    # anadir marca inicial de tiempo
-    #
-    #
-    #
+    t_start = time.time()
 
     if algoritmo_completo:
         camino, distancia_minima = fuerza_bruta(matriz_de_distancias)
     else:
         camino, distancia_minima = vecino_mas_cercano(matriz_de_distancias)
+    t_end = time.time()
+    round_t_eject = round(t_end - t_start, 2)
 
-    lbl_result.config(text=f"Ciclo hamiltoniano:\n {camino}\nDistancia total: \n{distancia_minima}", bg=paleta[0])
+    lbl_result.config(text=f"Ciclo hamiltoniano:\n {camino}\nDistancia total: \n{distancia_minima} \nTiempo de "
+                           f"ejecucion: \n{round_t_eject}s", bg=paleta[0])
 
     G = crear_grafo(matriz_de_distancias, n)
     dibujar_grafo(G)
@@ -207,7 +205,7 @@ def cerrar_programa():
 def configurar_ventana(paleta):
     root = tk.Tk()
     root.configure(bg=paleta[0], cursor="heart")
-    root.title("Solucionador del PAV")
+    root.title("Solucionador del TSP")
     root.geometry("640x450")
     return root
 
@@ -280,7 +278,7 @@ if __name__ == '__main__':
                                generar_matriz_y_mostrar)
     bnt_clean = crear_boton(root, "Limpiar Matriz", paleta[-1], paleta[2], "BOLD", "target", x_button,
                             y_button + dy_button * 1, limpiar_matriz)
-    bnt_solve = crear_boton(root, "Resolver PAV", paleta[-1], paleta[2], "BOLD", "target", x_button,
+    bnt_solve = crear_boton(root, "Resolver TSP", paleta[-1], paleta[2], "BOLD", "target", x_button,
                             y_button + dy_button * 2, resolver_tsp)
     lbl_result = crear_etiqueta(root, "", x_button, y_button + dy_button * 5, "NORMAL")
 
