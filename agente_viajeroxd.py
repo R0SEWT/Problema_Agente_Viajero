@@ -1,17 +1,17 @@
-import tkinter as tk
-from tkinter import messagebox
-import random
+import tkinter as tk  # front
+import random  # matriz aleatoria
+import tkinter.messagebox
 
-import networkx as nx
-import matplotlib.pyplot as plt
-from itertools import permutations
-
+import networkx as nx  # armas el grafo
+import matplotlib.pyplot as plt  # muestras
+from itertools import permutations  # para el FB
 
 """
 
 Parte mastemastica, documentar principalmente esta ps 
 
 """
+
 
 def generar_matriz(n):
     matriz = [[0] * n for _ in range(n)]
@@ -22,7 +22,23 @@ def generar_matriz(n):
     return matriz
 
 
+def arreglar_matriz(n):
+    error = False
+    # recorremos la matriz hasta la diagonal exclusive
+    for i in range(n):
+        for j in range(i, n - 1):
+            if entry_matrix[i][j].get() != entry_matrix[j][i].get():
+                entry_matrix[j][i].delete(0, tk.END)
+                entry_matrix[j][i].insert(0, entry_matrix[i][j].get())
+                error = True
+
+    if error:
+        tkinter.messagebox.showerror("Advertencia", "Se han modificado los valores de la matriz de adyacencia")
+
+
 def get_distancias_matriz(n):
+    arreglar_matriz(n)
+
     distancias = []
     for i in range(n):
         fila = []
@@ -33,14 +49,7 @@ def get_distancias_matriz(n):
     return distancias
 
 
-def calcular_distancia_total(camino, distancias):
-    distancia_total = 0
-    for i in range(len(camino) - 1):
-        distancia_total += distancias[camino[i]][camino[i + 1]]
-    return distancia_total
-
-
-def total_distance(ruta, distancias):
+def calcular_distancia_total(ruta, distancias):
     distancia_acumulada = 0
     for i in range(len(ruta) - 1):
         distancia_acumulada += distancias[ruta[i]][ruta[i + 1]]
@@ -70,11 +79,11 @@ def fuerza_bruta(matriz_de_distancias):
     min_distancia = float('inf')
 
     for ruta in permutaciones:
-        distancia = total_distance(ruta, matriz_de_distancias)
+        distancia = calcular_distancia_total(ruta, matriz_de_distancias)
         if distancia < min_distancia:
             min_distancia = distancia
             mejor_ruta = ruta
-    return ruta, min_distancia
+    return mejor_ruta, min_distancia
 
 
 def vecino_mas_cercano(distancias):
@@ -99,14 +108,8 @@ def vecino_mas_cercano(distancias):
 def resolver_tsp():
     n = int(entry_n.get())
     if n < 5 or n > 15:
-        messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
+        tkinter.messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
         return
-
-    # validar la simetria de la matriz
-    #
-    #
-    #
-
 
     lbl_result.config(text="Calculando...")
     root.update_idletasks()
@@ -137,6 +140,8 @@ Networkx y matplotlib
 - Almacenamiento e impresion como PNG
 
 """
+
+
 def crear_grafo(distancias, n):
     G = nx.Graph()
     for i in range(n):
@@ -165,6 +170,8 @@ Utilidades
 
 
 """
+
+
 def generar_matriz_y_mostrar():
     limpiar_matriz()
     n = int(entry_n.get())
@@ -278,7 +285,7 @@ if __name__ == '__main__':
     lbl_result = crear_etiqueta(root, "", x_button, y_button + dy_button * 5, "NORMAL")
 
     btn_close = crear_boton(root, "Cerrar Programa", paleta[-1], paleta[1], "BOLD", "target", x_button,
-                            y_button + dy_button * 3,  cerrar_programa)
+                            y_button + dy_button * 3, cerrar_programa)
 
     # Iniciar la ventana principal
     iniciar_ventana(root)
