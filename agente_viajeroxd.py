@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt  # muestras
 from itertools import permutations  # para el FB
 from tkinter import messagebox
 
-
-
 import consultasAPI
 
 """
@@ -90,8 +88,7 @@ def fuerza_bruta(matriz_de_distancias):
             min_distancia = distancia
             mejor_ruta = ruta
 
-
-    ruta_ciclica = mejor_ruta + (mejor_ruta[0],) # artificio para anadir un elemento a la tupla
+    ruta_ciclica = mejor_ruta + (mejor_ruta[0],)  # artificio para anadir un elemento a la tupla
 
     return ruta_ciclica, min_distancia
 
@@ -117,7 +114,6 @@ def vecino_mas_cercano(distancias):
 
 
 def resolver_tsp():
-
     global algoritmo_completo
     global modo_consultas_API
 
@@ -136,7 +132,6 @@ def resolver_tsp():
         root.update_idletasks()
         matriz_de_distancias = get_distancias_matriz(n)
 
-
     t_start = time.time()
 
     if algoritmo_completo:
@@ -149,7 +144,6 @@ def resolver_tsp():
     lbl_result.config(text=f"Ciclo hamiltoniano:\n {camino}\nDistancia total: \n{distancia_minima} \nTiempo de "
                            f"ejecucion: \n{round_t_eject}s", bg=paleta[0])
     dibujar_TSP(matriz_de_distancias, n, camino)
-
 
 
 """
@@ -181,12 +175,14 @@ def dibujar_recorrido(G, pos, recorrido):
     nx.draw_networkx_edges(G, pos, edgelist=[(recorrido[i], recorrido[i + 1]) for i in range(len(recorrido) - 1)],
                            edge_color='r', width=2)
 
+
 def dibujar_TSP(matriz_de_distancias, n, camino):
     G = crear_grafo(matriz_de_distancias, n)
     pos = nx.spring_layout(G)
     dibujar_grafo(G, pos)
     dibujar_recorrido(G, pos, camino)
     plt.show()
+
 
 """
 
@@ -260,7 +256,7 @@ def crear_matriz_de_entradas(root):
     matrix_frame = tk.Frame(root)
     matrix_frame.grid(row=1, column=0)  # Utiliza grid() para el frame
     matrix_frame.pack()
-    matrix_frame.place(relx=0.02, rely=0.15)
+    matrix_frame.place(relx=0.01, rely=0.14)
 
     entry_matrix = []
     for i in range(15):
@@ -283,7 +279,8 @@ def crear_boton(root, text, fg_color, bg_color, font_type, cursor_type, x, y, co
 
 
 def crear_checkbutton(root, text, fg_color, bg_color, font_type, cursor_type, x, y, variable):
-    checkbutton = tk.Checkbutton(root, text=text, fg=fg_color, bg=bg_color, font=font_type, cursor=cursor_type, variable=variable)
+    checkbutton = tk.Checkbutton(root, text=text, fg=fg_color, bg=bg_color, font=font_type, cursor=cursor_type,
+                                 variable=variable)
     checkbutton.pack()
     checkbutton.place(relx=x, rely=y)
     return checkbutton
@@ -291,7 +288,6 @@ def crear_checkbutton(root, text, fg_color, bg_color, font_type, cursor_type, x,
 
 def iniciar_ventana(root):
     root.mainloop()
-
 
 
 def crear_listbox(root, items, x, y, width, height):
@@ -312,7 +308,6 @@ def obtener_nombres_seleccionados(listbox):
     return selected_names
 
 
-
 if __name__ == '__main__':
     paleta = interpretar_paleta('https://paletadecolores.com.mx/paleta/352640/92394b/a9767a/d1b4a2/f1f2ce/')
     # Crear la ventana principal
@@ -322,41 +317,35 @@ if __name__ == '__main__':
     crear_etiqueta(root, "Ingrese la cantidad de ciudades (entre 5 y 15):", 0.01, 0.05, "NORMAL")
 
     # Entrada para la cantidad de ciudades
-    entry_n = crear_entrada(root, paleta[1], paleta[-1], 3, "tcross",0.55,0.05)
+    entry_n = crear_entrada(root, paleta[1], paleta[-1], 3, "tcross", 0.665, 0.065)
 
     # Crear matriz de entradas
     entry_matrix = crear_matriz_de_entradas(root)
 
     ciudades_api = []
 
-
     # Definir posiciones y estilos de botones
     dy_button = 0.10
-    x_button = 0.78
-    y_button = 0.05
-
+    x_button = 0.53
+    y_button = 0.14
 
     # Botones
     bnt_generate = crear_boton(root, "Generar Matriz", paleta[-1], paleta[2], "BOLD", "target", x_button, y_button,
                                generar_matriz_y_mostrar)
-    bnt_clean = crear_boton(root, "Limpiar Matriz", paleta[-1], paleta[2], "BOLD", "target", x_button,
-                            y_button + dy_button * 1, limpiar_matriz)
-    bnt_solve = crear_boton(root, "Resolver TSP", paleta[-1], paleta[2], "BOLD", "target", x_button,
-                            y_button + dy_button * 2, resolver_tsp)
-    lbl_result = crear_etiqueta(root, "", x_button, y_button + dy_button * 5, "NORMAL")
 
-    btn_close = crear_boton(root, "Cerrar Programa", paleta[-1], paleta[1], "BOLD", "target", x_button,
-                            y_button + dy_button * 3, cerrar_programa)
+    bnt_clean = crear_boton(root, "Limpiar Matriz", paleta[-1], paleta[2], "BOLD", "target", x_button + 0.24,
+                            y_button, limpiar_matriz)
 
-    '''bnt_agregar_ciudad = crear_boton(root, "Agregar Ciudad", paleta[-1], paleta[2], "BOLD", "target",
-                                     x_button,
-                                     y_button + dy_button * 11 )
-    bnt_eliminar_ciudad = crear_boton(root, "Eliminar Ciudad", paleta[-1], paleta[2], "BOLD", "target",
-                                      x_button,
-                                      y_button + dy_button * 13 )'''
+    bnt_solve = crear_boton(root, "Resolver TSP", paleta[-1], paleta[1], "BOLD", "target", x_button,
+                            y_button + dy_button, resolver_tsp)
+
+    lbl_result = crear_etiqueta(root, "", x_button + 0.05, y_button + dy_button * 4.2, "NORMAL")
+
+    btn_close = crear_boton(root, "Cerrar Programa", paleta[-1], paleta[1], "BOLD", "target", x_button + 0.21,
+                            y_button + dy_button, cerrar_programa)
 
     # Crear una etiqueta para ingresar ciudades
-    #crear_etiqueta(root, "Ingrese una ciudad:", x_button - 0.55, y_button + dy_button * 9, "NORMAL")
+    # crear_etiqueta(root, "Ingrese una ciudad:", x_button - 0.55, y_button + dy_button * 9, "NORMAL")
     # Entrada para ingresar ciudades
     entry_ciudad = crear_entrada(root, paleta[1], paleta[-1], 15, "tcross", x_button + 30,
                                  y_button + dy_button * 6)
@@ -379,17 +368,19 @@ if __name__ == '__main__':
         "Puno",
     ]
 
-    listbox = crear_listbox(root, ciudades_peruanas, 0.1, 0.1, 20, 6)
+    listbox = crear_listbox(root, ciudades_peruanas, 0.01, 0.78, 20, 6)
     ciudades_escogidas = ciudades_peruanas
+
 
     def mostrar_seleccion():
         global ciudades_escogidas
         ciudades_escogidas = obtener_nombres_seleccionados(listbox)
         print("Ciudad seleccionados:", ciudades_escogidas)
 
+
     boton_mostrar = tk.Button(root, text="Actualizar", command=mostrar_seleccion)
     boton_mostrar.pack()
-    boton_mostrar.place(relx=0.4, rely=0.8)
+    boton_mostrar.place(relx=0.21, rely=0.78)
 
     # Checkbuttons para alternar entre algoritmo GUI y algoritmo API
     var_toggle_gui = tk.BooleanVar()  # Variable para el Checkbutton "Heuristico"
@@ -404,6 +395,7 @@ if __name__ == '__main__':
     algoritmo_completo = True
     modo_consultas_API = False
 
+
     def toggle_algoritmo_completo():
         global algoritmo_completo
         algoritmo_completo = not algoritmo_completo
@@ -411,6 +403,8 @@ if __name__ == '__main__':
             messagebox.showinfo("Advertencia", "Se buscara el camino mas corto, no usar para mas de 10 nodos")
         else:
             messagebox.showinfo("Advertencia", "Se encontrara un camino corto, ideal para grandes volumenes")
+
+
     def toggle_consulta_api():
         global modo_consultas_API
         modo_consultas_API = not modo_consultas_API
@@ -421,15 +415,16 @@ if __name__ == '__main__':
         else:
             messagebox.showinfo("Advertencia", "Se esta usando como entrada la matriz de adyacencia")
 
-    bnt_toggle_completo = crear_boton(root, "Algoritmo FB/ Nearneighbor", paleta[-1], paleta[2], "BOLD", "target", x_button - 0.55,
-                                 y_button + dy_button * 7, toggle_algoritmo_completo)
-    bnt_toggle_api = crear_boton(root, "Consulta GUI/API", paleta[-1], paleta[2], "BOLD", "target", x_button - 0.30,
-                                 y_button + dy_button * 7, toggle_consulta_api)
+
+    bnt_toggle_completo = crear_boton(root, "Algoritmo FB/ Nearneighbor", paleta[-1], paleta[2], "BOLD", "target",
+                                      x_button,
+                                      y_button + dy_button * 2, toggle_algoritmo_completo)
+    bnt_toggle_api = crear_boton(root, "Consulta GUI/API", paleta[-1], paleta[2], "BOLD", "target", x_button,
+                                 y_button + dy_button * 3, toggle_consulta_api)
     bnt_toggle_completo.config(command=lambda: toggle_algoritmo_completo())
     bnt_toggle_api.config(command=lambda: toggle_consulta_api())
 
     # Algoritmo GUI o API
-
 
     # Iniciar la ventana principal
     iniciar_ventana(root)
