@@ -80,10 +80,13 @@ def fuerza_bruta(matriz_de_distancias):
     min_distancia = float('inf')
 
     for ruta in permutaciones:
+        if ruta[0] != 0:
+            break
         distancia = calcular_distancia_total(ruta, matriz_de_distancias)
         if distancia < min_distancia:
             min_distancia = distancia
             mejor_ruta = ruta
+
 
     ruta_ciclica = mejor_ruta + (mejor_ruta[0],) # artificio para anadir un elemento a la tupla
 
@@ -119,12 +122,13 @@ def resolver_tsp():
     lbl_result.config(text="Calculando...")
     root.update_idletasks()
 
-    modo_consultas_API = False
+    modo_consultas_API = True
 
     if modo_consultas_API:
-        ciudades_peruanas = ['Trujillo', 'Cajamarca', 'Chiclayo', 'Huamachuco']
-        n = len(ciudades_peruanas)
-        matriz_de_distancias = consultasAPI.get_matriz_from_google_maps(ciudades_peruanas, n)
+
+        n = len(ciudades_escogidas)
+        print(ciudades_escogidas, n)
+        matriz_de_distancias = consultasAPI.get_matriz_from_google_maps(ciudades_escogidas, n)
     else:
         matriz_de_distancias = get_distancias_matriz(n)
 
@@ -275,8 +279,35 @@ def crear_boton(root, text, fg_color, bg_color, font_type, cursor_type, x, y, co
     return button
 
 
+def crear_checkbutton(root, text, fg_color, bg_color, font_type, cursor_type, x, y):
+    checkbutton = tk.Checkbutton(root, text=text, fg=fg_color, bg=bg_color, font=font_type, cursor=cursor_type)
+    checkbutton.pack()
+    checkbutton.place(relx=x, rely=y)
+    return checkbutton
+
+
 def iniciar_ventana(root):
     root.mainloop()
+
+
+
+def crear_listbox(root, items, x, y, width, height):
+    listbox = tk.Listbox(root, selectmode=tk.MULTIPLE, width=width, height=height)
+
+    for item in items:
+        listbox.insert(tk.END, item)
+
+    listbox.pack()
+    listbox.place(relx=x, rely=y)
+
+    return listbox
+
+
+def obtener_nombres_seleccionados(listbox):
+    selected_indices = listbox.curselection()
+    selected_names = [listbox.get(index) for index in selected_indices]
+    return selected_names
+
 
 
 if __name__ == '__main__':
@@ -288,15 +319,19 @@ if __name__ == '__main__':
     crear_etiqueta(root, "Ingrese la cantidad de ciudades (entre 5 y 15):", 0.01, 0.05, "NORMAL")
 
     # Entrada para la cantidad de ciudades
-    entry_n = crear_entrada(root, paleta[1], paleta[-1], 3, "tcross", 0.55, 0.05)
+    entry_n = crear_entrada(root, paleta[1], paleta[-1], 3, "tcross",0.55,0.05)
 
     # Crear matriz de entradas
     entry_matrix = crear_matriz_de_entradas(root)
+
+    ciudades_api = []
+
 
     # Definir posiciones y estilos de botones
     dy_button = 0.10
     x_button = 0.78
     y_button = 0.05
+
 
     # Botones
     bnt_generate = crear_boton(root, "Generar Matriz", paleta[-1], paleta[2], "BOLD", "target", x_button, y_button,
@@ -309,6 +344,67 @@ if __name__ == '__main__':
 
     btn_close = crear_boton(root, "Cerrar Programa", paleta[-1], paleta[1], "BOLD", "target", x_button,
                             y_button + dy_button * 3, cerrar_programa)
+
+    # Botones para alternar entre algoritmo GUI y algoritmo API
+    bnt_toggle_gui = crear_checkbutton(root, "Heuristico", paleta[-1], paleta[2], "BOLD", "target", x_button,
+                                 y_button + dy_button * 7)
+    bnt_toggle_api = crear_checkbutton(root, "Usar API", paleta[-1], paleta[2], "BOLD", "target", x_button,
+                                 y_button + dy_button * 9)
+
+    '''bnt_agregar_ciudad = crear_boton(root, "Agregar Ciudad", paleta[-1], paleta[2], "BOLD", "target",
+                                     x_button,
+                                     y_button + dy_button * 11 )
+    bnt_eliminar_ciudad = crear_boton(root, "Eliminar Ciudad", paleta[-1], paleta[2], "BOLD", "target",
+                                      x_button,
+                                      y_button + dy_button * 13 )'''
+
+    # Crear una etiqueta para ingresar ciudades
+    #crear_etiqueta(root, "Ingrese una ciudad:", x_button - 0.55, y_button + dy_button * 9, "NORMAL")
+    # Entrada para ingresar ciudades
+    entry_ciudad = crear_entrada(root, paleta[1], paleta[-1], 15, "tcross", x_button + 30,
+                                 y_button + dy_button * 6)
+    # Botones para agregar y eliminar ciudades
+
+    # Lista para mostrar las ciudades
+    ciudades_peruanas = [
+        "Lima",
+        "Arequipa",
+        "Trujillo",
+        "Chiclayo",
+        "Piura",
+        "Iquitos",
+        "Cusco",
+        "Chimbote",
+        "Huancayo",
+        "Tacna",
+        "Juliaca",
+        "Ica",
+        "Cajamarca",
+        "Pucallpa",
+        "Sullana",
+        "Ayacucho",
+        "Chincha Alta",
+        "Huánuco",
+        "Puno",
+        "Tumbes"
+    ]
+
+    listbox = crear_listbox(root, ciudades_peruanas, 0.1, 0.1, 20, 6)
+
+    ciudades_escogidas = ciudades_peruanas
+
+    def mostrar_seleccion():
+        global ciudades_escogidas
+        ciudades_escogidas = obtener_nombres_seleccionados(listbox)
+        print("Ciudad seleccionados:", ciudades_escogidas)
+
+    boton_mostrar = tk.Button(root, text="Actualizar", command=mostrar_seleccion)
+    boton_mostrar.pack()
+    boton_mostrar.place(relx=0.4, rely=0.8)
+
+
+
+
 
     # Iniciar la ventana principal
     iniciar_ventana(root)
