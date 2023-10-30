@@ -38,7 +38,8 @@ def get_matriz_adyacencia(data_json, n):
         for j, e in enumerate(row["elements"]):
             aux = e["distance"]["text"]
             if i != j:
-                matriz[i][j] = int(aux.removesuffix(' km'))
+                aux2 = aux.removesuffix(' km')
+                matriz[i][j] = int(aux2.replace(",", ""))
 
     print(f'Matriz:\n{matriz}')
     return matriz

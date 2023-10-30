@@ -4,6 +4,9 @@ import time
 import networkx as nx  # armas el grafo
 import matplotlib.pyplot as plt  # muestras
 from itertools import permutations  # para el FB
+from tkinter import messagebox
+
+
 
 import consultasAPI
 
@@ -34,7 +37,7 @@ def arreglar_matriz(n):
                 error = True
 
     if error:
-        tk.messagebox.showerror("Advertencia", "Se han modificado los valores de la matriz de adyacencia")
+        messagebox.showerror("Advertencia", "Se han modificado los valores de la matriz de adyacencia")
 
 
 def get_distancias_matriz(n):
@@ -114,15 +117,9 @@ def vecino_mas_cercano(distancias):
 
 
 def resolver_tsp():
-    n = int(entry_n.get())
-    if n < 5 or n > 15:
-        tk.messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
-        return
 
-    lbl_result.config(text="Calculando...")
-    root.update_idletasks()
-
-    modo_consultas_API = True
+    global algoritmo_completo
+    global modo_consultas_API
 
     if modo_consultas_API:
 
@@ -130,10 +127,16 @@ def resolver_tsp():
         print(ciudades_escogidas, n)
         matriz_de_distancias = consultasAPI.get_matriz_from_google_maps(ciudades_escogidas, n)
     else:
+        n = int(entry_n.get())
+        if (n < 5 or n > 15):
+            messagebox.showerror("Error", "El valor de 'n' debe estar entre 5 y 15.")
+            return
+
+        lbl_result.config(text="Calculando...")
+        root.update_idletasks()
         matriz_de_distancias = get_distancias_matriz(n)
 
 
-    algoritmo_completo = False
     t_start = time.time()
 
     if algoritmo_completo:
@@ -279,8 +282,8 @@ def crear_boton(root, text, fg_color, bg_color, font_type, cursor_type, x, y, co
     return button
 
 
-def crear_checkbutton(root, text, fg_color, bg_color, font_type, cursor_type, x, y):
-    checkbutton = tk.Checkbutton(root, text=text, fg=fg_color, bg=bg_color, font=font_type, cursor=cursor_type)
+def crear_checkbutton(root, text, fg_color, bg_color, font_type, cursor_type, x, y, variable):
+    checkbutton = tk.Checkbutton(root, text=text, fg=fg_color, bg=bg_color, font=font_type, cursor=cursor_type, variable=variable)
     checkbutton.pack()
     checkbutton.place(relx=x, rely=y)
     return checkbutton
@@ -345,12 +348,6 @@ if __name__ == '__main__':
     btn_close = crear_boton(root, "Cerrar Programa", paleta[-1], paleta[1], "BOLD", "target", x_button,
                             y_button + dy_button * 3, cerrar_programa)
 
-    # Botones para alternar entre algoritmo GUI y algoritmo API
-    bnt_toggle_gui = crear_checkbutton(root, "Heuristico", paleta[-1], paleta[2], "BOLD", "target", x_button,
-                                 y_button + dy_button * 7)
-    bnt_toggle_api = crear_checkbutton(root, "Usar API", paleta[-1], paleta[2], "BOLD", "target", x_button,
-                                 y_button + dy_button * 9)
-
     '''bnt_agregar_ciudad = crear_boton(root, "Agregar Ciudad", paleta[-1], paleta[2], "BOLD", "target",
                                      x_button,
                                      y_button + dy_button * 11 )
@@ -363,7 +360,6 @@ if __name__ == '__main__':
     # Entrada para ingresar ciudades
     entry_ciudad = crear_entrada(root, paleta[1], paleta[-1], 15, "tcross", x_button + 30,
                                  y_button + dy_button * 6)
-    # Botones para agregar y eliminar ciudades
 
     # Lista para mostrar las ciudades
     ciudades_peruanas = [
@@ -372,25 +368,18 @@ if __name__ == '__main__':
         "Trujillo",
         "Chiclayo",
         "Piura",
-        "Iquitos",
         "Cusco",
         "Chimbote",
         "Huancayo",
         "Tacna",
-        "Juliaca",
         "Ica",
         "Cajamarca",
-        "Pucallpa",
         "Sullana",
         "Ayacucho",
-        "Chincha Alta",
-        "Huánuco",
         "Puno",
-        "Tumbes"
     ]
 
     listbox = crear_listbox(root, ciudades_peruanas, 0.1, 0.1, 20, 6)
-
     ciudades_escogidas = ciudades_peruanas
 
     def mostrar_seleccion():
@@ -402,8 +391,44 @@ if __name__ == '__main__':
     boton_mostrar.pack()
     boton_mostrar.place(relx=0.4, rely=0.8)
 
+    # Checkbuttons para alternar entre algoritmo GUI y algoritmo API
+    var_toggle_gui = tk.BooleanVar()  # Variable para el Checkbutton "Heuristico"
+    var_toggle_api = tk.BooleanVar()  # Variable para el Checkbutton "Usar API"
 
+    '''bnt_toggle_gui = crear_checkbutton(root, "Heuristico", paleta[-1], paleta[2], "BOLD", "target", x_button,
+                                       y_button + dy_button * 7, var_toggle_gui)
+    bnt_toggle_api = crear_checkbutton(root, "Usar API", paleta[-1], paleta[2], "BOLD", "target", x_button,
+                                       y_button + dy_button * 9, var_toggle_api)'''
+    # Botones para alternar entre algoritmo GUI y algoritmo API
 
+    algoritmo_completo = True
+    modo_consultas_API = False
+
+    def toggle_algoritmo_completo():
+        global algoritmo_completo
+        algoritmo_completo = not algoritmo_completo
+        if algoritmo_completo:
+            messagebox.showinfo("Advertencia", "Se buscara el camino mas corto, no usar para mas de 10 nodos")
+        else:
+            messagebox.showinfo("Advertencia", "Se encontrara un camino corto, ideal para grandes volumenes")
+    def toggle_consulta_api():
+        global modo_consultas_API
+        modo_consultas_API = not modo_consultas_API
+
+        if modo_consultas_API:
+            messagebox.showinfo("Advertencia", "Se esta usando como entrada las ciudades de la lista.")
+            mostrar_seleccion()
+        else:
+            messagebox.showinfo("Advertencia", "Se esta usando como entrada la matriz de adyacencia")
+
+    bnt_toggle_completo = crear_boton(root, "Algoritmo FB/ Nearneighbor", paleta[-1], paleta[2], "BOLD", "target", x_button - 0.55,
+                                 y_button + dy_button * 7, toggle_algoritmo_completo)
+    bnt_toggle_api = crear_boton(root, "Consulta GUI/API", paleta[-1], paleta[2], "BOLD", "target", x_button - 0.30,
+                                 y_button + dy_button * 7, toggle_consulta_api)
+    bnt_toggle_completo.config(command=lambda: toggle_algoritmo_completo())
+    bnt_toggle_api.config(command=lambda: toggle_consulta_api())
+
+    # Algoritmo GUI o API
 
 
     # Iniciar la ventana principal
